@@ -751,6 +751,7 @@ function validateForm() {
 }
 
 function collectData() {
+  // Апостроф перед ИНН и телефоном заставляет Google Sheets хранить их как текст
   return {
     timestamp: new Date().toISOString(),
     branch: document.getElementById('branch').value,
@@ -758,7 +759,7 @@ function collectData() {
     inn: document.getElementById('inn').value,
     email: document.getElementById('email').value,
     contact: document.getElementById('contact').value.trim(),
-    phone: document.getElementById('phone').value.trim(),
+    phone: document.getElementById('phone').value.trim().replace(/^\+/, ''),  // убираем + чтобы Sheets не воспринял как формулу
     edo1: edo1Val === 'yes' ? 'Да' : 'Нет',
     edo1name: edo1Val === 'yes' ? document.getElementById('edo1name').value.trim() : '',
     edo1reason: edo1Val === 'no' ? document.getElementById('edo1reason').value.trim() : '',
@@ -877,4 +878,3 @@ async function exportExcel() {
 </script>
 </body>
 </html>
-
