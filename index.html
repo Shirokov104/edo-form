@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Анкета ЭДО — Перевозчики</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -171,6 +172,12 @@
     border: 1.5px solid #d1d5db;
   }
   .btn-secondary:hover { background: #f5f5f5; }
+  .btn-export {
+    background: #fff;
+    color: #166534;
+    border: 1.5px solid #86efac;
+  }
+  .btn-export:hover { background: #f0fff4; border-color: #4ade80; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   .success-banner {
@@ -343,7 +350,15 @@
   </button>
 </div>
 
-<div style="max-width:720px;margin:20px auto;font-size:12px;color:#aaa;text-align:center;">
+<!-- Кнопка выгрузки -->
+<div style="max-width:720px;margin:16px auto 0;">
+  <button class="btn btn-export" id="exportBtn" onclick="exportExcel()" style="width:100%;justify-content:center;">
+    <span id="exportText">⬇ Выгрузить все данные в Excel</span>
+    <div class="spinner" id="exportSpinner" style="border-top-color:#166534;border-color:rgba(22,101,52,0.3);"></div>
+  </button>
+</div>
+
+<div style="max-width:720px;margin:12px auto;font-size:12px;color:#aaa;text-align:center;">
   Данные сохраняются в Google Sheets. При наличии вопросов обращайтесь к администратору.
 </div>
 
@@ -351,7 +366,7 @@
 // ============================================================
 // НАСТРОЙКИ — замените на свой URL Google Apps Script
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2wzHgrTMOSL68j70ebce5jj2JfAMOEYNXCY_NpqmyahwMhj_wUWRYuam6cghELRMkSA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwoEHbL9sGWvo0OGkMbHKhSVD2eXWov2byMY0VX0km4cDdazN7Qs4JCoyJUm6b4A2YJdA/exec';
 
 // ============================================================
 // ДАННЫЕ: Филиалы и перевозчики
@@ -806,6 +821,60 @@ function resetForm() {
   document.querySelectorAll('.error-msg').forEach(el => el.classList.remove('show'));
   document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
 }
+
+async function exportExcel() {
+  const btn = document.getElementById('exportBtn');
+  const txt = document.getElementById('exportText');
+  const spinner = document.getElementById('exportSpinner');
+
+  btn.disabled = true;
+  txt.textContent = 'Загружаем данные...';
+  spinner.style.display = 'block';
+
+  try {
+    // Запрашиваем данные из Google Sheets через Apps Script (GET + action=export)
+    const url = APPS_SCRIPT_URL + '?action=export';
+    const resp = await fetch(url);
+    const json = await resp.json();
+
+    if (!json.data || !json.data.length) {
+      alert('В таблице пока нет данных для выгрузки.');
+      return;
+    }
+
+    // Строим Excel через SheetJS
+    const headers = [
+      'Дата и время', 'Филиал', 'Наименование перевозчика', 'ИНН', 'Email',
+      'ФИО контакта', 'Телефон',
+      'ЭДО для оплаты счетов', 'Наименование провайдера ЭДО (оплата)', 'Причина отсутствия ЭДО (оплата)',
+      'ЭДО для ЭТрН', 'Наименование провайдера ЭДО (ЭТрН)', 'Причина отсутствия ЭДО (ЭТрН)'
+    ];
+
+    const ws_data = [headers, ...json.data];
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    // Ширина столбцов
+    ws['!cols'] = [
+      {wch:18},{wch:16},{wch:28},{wch:14},{wch:24},
+      {wch:22},{wch:18},{wch:14},{wch:28},{wch:28},
+      {wch:14},{wch:28},{wch:28}
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Данные ЭДО');
+
+    const today = new Date().toLocaleDateString('ru-RU').replace(/\./g, '-');
+    XLSX.writeFile(wb, `Данные_ЭДО_${today}.xlsx`);
+
+  } catch (e) {
+    alert('Ошибка при выгрузке. Проверьте подключение или обратитесь к администратору.\n\n' + e.message);
+  } finally {
+    btn.disabled = false;
+    txt.textContent = '⬇ Выгрузить все данные в Excel';
+    spinner.style.display = 'none';
+  }
+}
 </script>
 </body>
 </html>
+
