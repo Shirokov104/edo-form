@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Анкета ЭДО — Перевозчики</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    padding: 24px 16px;
+    color: #1a1a2e;
+  }
+  .page-header {
+    max-width: 720px;
+    margin: 0 auto 24px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: #555;
+    margin-top: 6px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    max-width: 720px;
+    margin: 0 auto 20px;
+    padding: 28px 32px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .num {
+    background: #1a56db;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .field-group { margin-bottom: 20px; }
+  .field-group:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 6px;
+  }
+  label .req { color: #e53e3e; margin-left: 2px; }
+  input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1a1a2e;
+    background: #fff;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #1a56db;
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+  }
+  input.error, select.error { border-color: #e53e3e; }
+  .error-msg { color: #e53e3e; font-size: 12px; margin-top: 4px; display: none; }
+  .error-msg.show { display: block; }
+
+  .radio-group {
+    display: flex;
+    gap: 12px;
+  }
+  .radio-option {
+    flex: 1;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .radio-option:hover { border-color: #1a56db; background: #f0f4ff; }
+  .radio-option.selected { border-color: #1a56db; background: #eef2ff; }
+  .radio-option input[type="radio"] {
+    width: 16px; height: 16px;
+    accent-color: #1a56db;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .conditional-field {
+    margin-top: 14px;
+    padding: 16px;
+    background: #f8faff;
+    border-radius: 8px;
+    border: 1px solid #dce8ff;
+    display: none;
+  }
+  .conditional-field.show { display: block; }
+  .conditional-field label { color: #2d3748; }
+  .field-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .actions {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+  }
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: #1a56db;
+    color: #fff;
+    flex: 1;
+  }
+  .btn-primary:hover { background: #1447b8; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    background: #fff;
+    color: #555;
+    border: 1.5px solid #d1d5db;
+  }
+  .btn-secondary:hover { background: #f5f5f5; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .success-banner {
+    display: none;
+    max-width: 720px;
+    margin: 0 auto 20px;
+    background: #f0fff4;
+    border: 1.5px solid #9ae6b4;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #276749;
+    align-items: center;
+    gap: 12px;
+  }
+  .success-banner.show { display: flex; }
+  .success-icon { font-size: 22px; }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hint { font-size: 12px; color: #888; margin-top: 4px; }
+
+  @media (max-width: 520px) {
+    .card { padding: 20px 18px; }
+    .radio-group { flex-direction: column; }
+    .actions { flex-direction: column; }
+    .btn-primary { flex: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Анкета по ЭДО для перевозчиков</h1>
+  <p>Заполните все обязательные поля (<span style="color:#e53e3e">*</span>) и нажмите «Отправить»</p>
+</div>
+
+<div class="success-banner" id="successBanner">
+  <span class="success-icon">✅</span>
+  <div>
+    <strong>Данные успешно отправлены!</strong><br>
+    Информация сохранена в таблице Google Sheets.
+  </div>
+</div>
+
+<!-- Блок 1: Филиал и перевозчик -->
+<div class="card">
+  <div class="card-title"><span class="num">1</span> Основная информация</div>
+
+  <div class="field-group">
+    <label for="branch">Филиал <span class="req">*</span></label>
+    <select id="branch" onchange="onBranchChange()">
+      <option value="">— Выберите филиал —</option>
+    </select>
+    <div class="error-msg" id="err-branch">Выберите филиал</div>
+  </div>
+
+  <div class="field-group">
+    <label for="carrier">Наименование перевозчика <span class="req">*</span></label>
+    <select id="carrier" disabled>
+      <option value="">— Сначала выберите филиал —</option>
+    </select>
+    <div class="error-msg" id="err-carrier">Выберите перевозчика</div>
+  </div>
+</div>
+
+<!-- Блок 2: Контактные данные -->
+<div class="card">
+  <div class="card-title"><span class="num">2</span> Контактные данные</div>
+
+  <div class="field-group">
+    <label for="inn">ИНН <span class="req">*</span></label>
+    <input type="text" id="inn" placeholder="Введите ИНН" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')">
+    <div class="error-msg" id="err-inn">Введите корректный ИНН (10 или 12 цифр)</div>
+  </div>
+
+  <div class="field-group">
+    <label for="email">Электронная почта <span class="req">*</span></label>
+    <input type="email" id="email" placeholder="example@company.ru">
+    <div class="error-msg" id="err-email">Введите корректный email</div>
+  </div>
+
+  <div class="field-group">
+    <label for="contact">ФИО контакта <span class="req">*</span></label>
+    <input type="text" id="contact" placeholder="Иванов Иван Иванович">
+    <div class="error-msg" id="err-contact">Введите ФИО</div>
+  </div>
+
+  <div class="field-group">
+    <label for="phone">Номер телефона <span class="req">*</span></label>
+    <input type="tel" id="phone" placeholder="+7 (900) 000-00-00" oninput="formatPhone(this)">
+    <div class="error-msg" id="err-phone">Введите номер телефона</div>
+  </div>
+</div>
+
+<!-- Блок 3: ЭДО для оплаты счетов -->
+<div class="card">
+  <div class="card-title"><span class="num">3</span> Провайдер ЭДО для оплаты счетов</div>
+
+  <div class="field-group">
+    <label>Выбран провайдер ЭДО для оплаты счетов? <span class="req">*</span></label>
+    <div class="radio-group">
+      <label class="radio-option" onclick="selectEdo1('yes')">
+        <input type="radio" name="edo1" value="yes" id="edo1yes"> Да
+      </label>
+      <label class="radio-option" onclick="selectEdo1('no')">
+        <input type="radio" name="edo1" value="no" id="edo1no"> Нет
+      </label>
+    </div>
+    <div class="error-msg" id="err-edo1">Выберите один из вариантов</div>
+
+    <div class="conditional-field" id="edo1-name-block">
+      <label for="edo1name">Наименование провайдера ЭДО для оплаты счетов <span class="req">*</span></label>
+      <input type="text" id="edo1name" placeholder="Например: Диадок, СБИС, 1С-ЭДО...">
+      <div class="error-msg" id="err-edo1name">Укажите наименование провайдера</div>
+    </div>
+
+    <div class="conditional-field" id="edo1-reason-block">
+      <label for="edo1reason">Причина отсутствия провайдера ЭДО для оплаты счетов <span class="req">*</span></label>
+      <input type="text" id="edo1reason" placeholder="Укажите причину...">
+      <div class="error-msg" id="err-edo1reason">Укажите причину</div>
+    </div>
+  </div>
+</div>
+
+<!-- Блок 4: ЭДО для ЭТрН -->
+<div class="card">
+  <div class="card-title"><span class="num">4</span> Провайдер ЭДО для работы с ЭТрН</div>
+
+  <div class="field-group">
+    <label>Выбран провайдер ЭДО для работы с ЭТрН? <span class="req">*</span></label>
+    <div class="radio-group">
+      <label class="radio-option" onclick="selectEdo2('yes')">
+        <input type="radio" name="edo2" value="yes" id="edo2yes"> Да
+      </label>
+      <label class="radio-option" onclick="selectEdo2('no')">
+        <input type="radio" name="edo2" value="no" id="edo2no"> Нет
+      </label>
+    </div>
+    <div class="error-msg" id="err-edo2">Выберите один из вариантов</div>
+
+    <div class="conditional-field" id="edo2-name-block">
+      <label for="edo2name">Наименование провайдера ЭДО для работы с ЭТрН <span class="req">*</span></label>
+      <input type="text" id="edo2name" placeholder="Например: Диадок, СБИС, 1С-ЭДО...">
+      <div class="error-msg" id="err-edo2name">Укажите наименование провайдера</div>
+    </div>
+
+    <div class="conditional-field" id="edo2-reason-block">
+      <label for="edo2reason">Причина отсутствия провайдера ЭДО для работы с ЭТрН <span class="req">*</span></label>
+      <input type="text" id="edo2reason" placeholder="Укажите причину...">
+      <div class="error-msg" id="err-edo2reason">Укажите причину</div>
+    </div>
+  </div>
+</div>
+
+<!-- Кнопки -->
+<div class="actions">
+  <button class="btn btn-secondary" onclick="resetForm()">Очистить форму</button>
+  <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">
+    <span id="btnText">Отправить данные</span>
+    <div class="spinner" id="btnSpinner"></div>
+  </button>
+</div>
+
+<div style="max-width:720px;margin:20px auto;font-size:12px;color:#aaa;text-align:center;">
+  Данные сохраняются в Google Sheets. При наличии вопросов обращайтесь к администратору.
+</div>
+
+<script>
+// ============================================================
+// НАСТРОЙКИ — замените на свой URL Google Apps Script
+// ============================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2wzHgrTMOSL68j70ebce5jj2JfAMOEYNXCY_NpqmyahwMhj_wUWRYuam6cghELRMkSA/exec';
+
+// ============================================================
+// ДАННЫЕ: Филиалы и перевозчики
+// Замените на свои данные. Формат:
+// "Название филиала": ["Перевозчик 1", "Перевозчик 2", ...]
+// ============================================================
+const DATA = {
+  "Астрахань": [
+    "ИП Стервягин Максим Евгеньевич"
+  ],
+  "Барнаул": [
+    "ИП Живеденко Вадим Андреевич",
+    "ИП Нестеренко Артем Павлович"
+  ],
+  "Волгоград": [
+    "ИП Александров Владимир Владимирович",
+    "ИП Ковешников Михаил Васильевич",
+    "ИП Кодочигов Петр Петрович"
+  ],
+  "Воронеж": [
+    "ИП Березкин Дмитрий Александрович",
+    "ИП Боряков Даниил Алексеевич",
+    "ИП Ловягин Иван Викторович",
+    "ИП Мещеряков Сергей Анатольевич",
+    "ИП Полевая Людмила Алексеевна",
+    "ИП Проневич Антон Андреевич",
+    "ИП Шипилов Дмитрий Иванович",
+    "ООО \"Энерджи Маркет Воронеж\"",
+    "ИП Акуленко",
+    "ИП Акулинин Роман Юрьевич",
+    "ИП Куликов А.Д."
+  ],
+  "Екатеринбург": [
+    "ИП Ерина Евгения Алексеевна",
+    "ИП Нестеренко Иван Васильевич",
+    "ИП Полубоярцев Вячеслав Александрович",
+    "ИП Попонин Александр Владимирович",
+    "ИП Стёпин Вадим Юрьевич",
+    "ООО \"Меридиан\"",
+    "ИП Долбилин Иван Владимирович",
+    "ИП Кошкаров А.В."
+  ],
+  "Ижевск": [
+    "ИП Галимов Нияз Нариманович",
+    "ИП Галимова Светлана Николаевна",
+    "ИП Наговицин Александр Львович",
+    "ИП Широбоков Руслан Николаевич",
+    "ИП Волков Иван Игоревич"
+  ],
+  "Казань": [
+    "ИП Евсеев Сергей Александрович",
+    "ИП Мифтахов Алмаз Расихович",
+    "ИП Мустафин Булат Рамилевич",
+    "ИП Чулкин Денис Сергеевич",
+    "ИП Бердников Алексей Михайлович"
+  ],
+  "Краснодар": [
+    "ИП Букша Сергей Григорьевич",
+    "ИП Воронцов Владимир Анатольевич",
+    "ИП Галат Юрий Михайлович",
+    "ИП Галицин Дмитрий Александрович",
+    "ИП Уберия Евгений Амиранович",
+    "ИП Шорохов Алексей Витальевич",
+    "ООО \"ТК Авангард\""
+  ],
+  "Красноярск": [
+    "ИП Акимов Виталий Викторович",
+    "ИП Кармацких Виталий Юрьевич",
+    "ООО АэролайнЭкспресс",
+    "ИП Тарасов Денис Александрович"
+  ],
+  "Мурманск": [
+    "ИП Григорьев Сергей Анатольевич"
+  ],
+  "Набережные Челны": [
+    "ИП Сажин Денис Сергеевич",
+    "ИП Мухаметдинов Динар Ришатович"
+  ],
+  "Нижний Новгород": [
+    "ИП Буреев Александр Викторович",
+    "ИП Волохов Сергей Владимирович",
+    "ИП Краснов Александр Сергеевич",
+    "ИП Курятников Алексей Александрович",
+    "ИП Лопаткин Никита Сергеевич",
+    "ИП Петросян Сергей Аликович",
+    "ИП Туманов Павел Николаевич",
+    "ИП Юрин Максим Иванович"
+  ],
+  "Новосибирск": [
+    "ИП Гусева Елена Аркадьевна",
+    "ИП Онищенко Алексей Алексеевич",
+    "ИП Пилипейко Владимир Михайлович",
+    "ИП Финоженко Максим Владимирович",
+    "ИП Штанников Евгений Александрович"
+  ],
+  "Омск": [
+    "ИП Джуров Сергей Владимирович",
+    "ИП Смайлов Сергей Жангельдинович",
+    "ИП Трубаченко Сергей Станиславович"
+  ],
+  "Орел": [
+    "ИП Мигачев Андрей Петрович"
+  ],
+  "Оренбург": [
+    "ООО ОриоН"
+  ],
+  "Пенза": [
+    "ИП Баткаева Руфина Рястямовна",
+    "ИП Николаев Сергей Михайлович",
+    "ИП Танаев Михаил Владимирович"
+  ],
+  "Пермь": [
+    "ИП Гусаинов Александр Ахмадеевич",
+    "ИП Колыванов Алексей Викторович"
+  ],
+  "Пятигорск": [
+    "ИП Дунайский Виктор Иванович",
+    "ИП Новиченко Александр Иванович"
+  ],
+  "Ростов-на-Дону": [
+    "ИП Калиненко Андрей Александрович",
+    "ИП Соболев Дмитрий Анатольевич",
+    "ИП Линник Павел Владимирович"
+  ],
+  "Самара": [
+    "ИП Гутняк Александр Ярославович",
+    "ИП Световидов Иван Михайлович",
+    "ИП Щербаков Иван Анатольевич",
+    "ООО \"Вид Сверху\"",
+    "ООО \"Самараавтотранс2023\"",
+    "ООО Самара Авто Экспедитор"
+  ],
+  "Санкт-Петербург": [
+    "ИП Горбанев Виктор Анатольевич",
+    "ИП Горняков Виктор Евгеньевич",
+    "ИП Климкин Игорь Викторович",
+    "ИП Коваленко Иван Владимирович",
+    "ИП Кожевников Павел Юрьевич",
+    "ИП Кустов Кирилл Валерьевич",
+    "ИП Лепп Юлия Андреевна",
+    "ИП Пиртахия Сосо Северянович",
+    "ИП Поляков Дмитрий Игоревич",
+    "ИП Рыженков Игорь Владимирович",
+    "ИП Рыжков Павел Валентинович",
+    "ИП Свечников Дмитрий Александрович",
+    "ИП Трубицын Андрей Сергеевич",
+    "ИП Ямаков Ильдар Кямилевич",
+    "ИП Кирсанова Наталья Владимировна",
+    "ИП Рыженкова Мария Александровна"
+  ],
+  "Саратов": [
+    "ИП Банаев Хамзат Алузерович",
+    "ИП Гусев Андрей Михайлович",
+    "ИП Зотов Алексей Александрович",
+    "ИП Кульман Регина Эдуардовна",
+    "ИП Мухин Олег Владимирович",
+    "ИП Шубин Андрей Владимирович"
+  ],
+  "Симферополь": [
+    "ИП Порядников Сергей Сергеевич"
+  ],
+  "Сочи": [
+    "ИП Дикарев Дмитрий Георгиевич",
+    "ИП Стаскевич Алексей Владимирович",
+    "ИП Зимина Алла Сергеевна"
+  ],
+  "Ставрополь": [
+    "ИП Дунайский Виктор Иванович",
+    "ИП Новиченко Александр Иванович"
+  ],
+  "Сургут": [
+    "ИП Абдуленко Сергей Владимирович",
+    "ИП Байрамлы Техран Тариел оглы",
+    "ИП Беленец Дмитрий Семенович",
+    "ИП Панкеева Яна Юрьевна",
+    "ИП Сущенко Николай Александрович",
+    "ИП Шарипов Мухаммадризо Шарифович",
+    "ИП Тарасевич Дмитрий Сергеевич"
+  ],
+  "Сыктывкар": [
+    "ООО \"Посредник\"",
+    "ООО ДЛТ-Север"
+  ],
+  "Тольятти": [
+    "ИП Иксаров Владимир Семенович",
+    "ИП Чараев Никита Игоревич"
+  ],
+  "Тула": [
+    "ИП Полетова Ирина Анатольевна"
+  ],
+  "Тюмень": [
+    "ИП Каленых Алексей Олегович",
+    "ИП Носков Дмитрий Олегович",
+    "ИП Смирнов Олег Николаевич"
+  ],
+  "Уфа": [
+    "ООО \"АвтоЛидер\""
+  ],
+  "Чебоксары": [
+    "ИП Антонов Кирилл Викторович",
+    "ИП Бикчантаев Шамиль Ярхамович",
+    "ИП Васильев Николай Верденантович",
+    "ООО ТК \"СПЕЦГРУЗКОМТРАНС\"",
+    "ИП Сергеев Артур Вячеславович"
+  ],
+  "Челябинск": [
+    "ИП Валайнис Алексей Янисович",
+    "ИП Лебедева Нателла Мартуниковна",
+    "ИП Неежлев Алексей Владимирович",
+    "ИП Стёпин Вадим Юрьевич",
+    "ООО РАБОЧИЙ ЛЕГИОН"
+  ],
+  "Ярославль": [
+    "ИП Тыхолиз Илья Романович",
+    "ИП Апатьева Светлана Николаевна",
+    "ИП Сергеев Виталий Борисович"
+  ]
+};
+
+let edo1Val = null;
+let edo2Val = null;
+
+// Инициализация списка филиалов
+function initBranches() {
+  const sel = document.getElementById('branch');
+  Object.keys(DATA).sort().forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b;
+    opt.textContent = b;
+    sel.appendChild(opt);
+  });
+}
+
+function onBranchChange() {
+  const branch = document.getElementById('branch').value;
+  const carrierSel = document.getElementById('carrier');
+  carrierSel.innerHTML = '';
+
+  if (!branch) {
+    carrierSel.innerHTML = '<option value="">— Сначала выберите филиал —</option>';
+    carrierSel.disabled = true;
+    return;
+  }
+
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = '— Выберите перевозчика —';
+  carrierSel.appendChild(opt0);
+
+  (DATA[branch] || []).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    carrierSel.appendChild(opt);
+  });
+
+  carrierSel.disabled = false;
+  clearError('branch');
+}
+
+function selectEdo1(val) {
+  edo1Val = val;
+  document.querySelectorAll('[name="edo1"]').forEach(r => r.checked = r.value === val);
+  document.querySelectorAll('.radio-option').forEach((el, i) => {
+    if (el.querySelector('[name="edo1"]')) {
+      el.classList.toggle('selected', el.querySelector('input').value === val);
+    }
+  });
+
+  const nameBlock = document.getElementById('edo1-name-block');
+  const reasonBlock = document.getElementById('edo1-reason-block');
+
+  if (val === 'yes') {
+    nameBlock.classList.add('show');
+    reasonBlock.classList.remove('show');
+    document.getElementById('edo1reason').value = '';
+  } else {
+    nameBlock.classList.remove('show');
+    reasonBlock.classList.add('show');
+    document.getElementById('edo1name').value = '';
+  }
+  clearError('edo1');
+}
+
+function selectEdo2(val) {
+  edo2Val = val;
+  document.querySelectorAll('[name="edo2"]').forEach(r => r.checked = r.value === val);
+
+  const nameBlock = document.getElementById('edo2-name-block');
+  const reasonBlock = document.getElementById('edo2-reason-block');
+
+  if (val === 'yes') {
+    nameBlock.classList.add('show');
+    reasonBlock.classList.remove('show');
+    document.getElementById('edo2reason').value = '';
+  } else {
+    nameBlock.classList.remove('show');
+    reasonBlock.classList.add('show');
+    document.getElementById('edo2name').value = '';
+  }
+  clearError('edo2');
+}
+
+// Обновление состояния radio-кнопок визуально
+document.addEventListener('DOMContentLoaded', () => {
+  initBranches();
+  document.querySelectorAll('.radio-option').forEach(el => {
+    el.addEventListener('click', () => {
+      const input = el.querySelector('input[type="radio"]');
+      const name = input.name;
+      document.querySelectorAll(`[name="${name}"]`).forEach(r => {
+        r.closest('.radio-option')?.classList.remove('selected');
+      });
+      el.classList.add('selected');
+    });
+  });
+});
+
+function formatPhone(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.startsWith('8')) v = '7' + v.slice(1);
+  if (v.startsWith('7') && v.length > 0) {
+    let r = '+7';
+    if (v.length > 1) r += ' (' + v.slice(1, 4);
+    if (v.length >= 4) r += ') ' + v.slice(4, 7);
+    if (v.length >= 7) r += '-' + v.slice(7, 9);
+    if (v.length >= 9) r += '-' + v.slice(9, 11);
+    input.value = r;
+  }
+}
+
+function showError(id, show = true) {
+  const el = document.getElementById('err-' + id);
+  if (el) el.classList.toggle('show', show);
+  const field = document.getElementById(id);
+  if (field) field.classList.toggle('error', show);
+}
+
+function clearError(id) { showError(id, false); }
+
+function validateForm() {
+  let valid = true;
+
+  if (!document.getElementById('branch').value) { showError('branch'); valid = false; } else clearError('branch');
+  if (!document.getElementById('carrier').value) { showError('carrier'); valid = false; } else clearError('carrier');
+
+  const inn = document.getElementById('inn').value;
+  if (!inn || (inn.length !== 10 && inn.length !== 12)) { showError('inn'); valid = false; } else clearError('inn');
+
+  const email = document.getElementById('email').value;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email'); valid = false; } else clearError('email');
+
+  const contact = document.getElementById('contact').value.trim();
+  if (!contact) { showError('contact'); valid = false; } else clearError('contact');
+
+  const phone = document.getElementById('phone').value.trim();
+  if (!phone || phone.replace(/\D/g, '').length < 11) { showError('phone'); valid = false; } else clearError('phone');
+
+  if (!edo1Val) { showError('edo1'); valid = false; } else {
+    clearError('edo1');
+    if (edo1Val === 'yes') {
+      const v = document.getElementById('edo1name').value.trim();
+      if (!v) { showError('edo1name'); valid = false; } else clearError('edo1name');
+    } else {
+      const v = document.getElementById('edo1reason').value.trim();
+      if (!v) { showError('edo1reason'); valid = false; } else clearError('edo1reason');
+    }
+  }
+
+  if (!edo2Val) { showError('edo2'); valid = false; } else {
+    clearError('edo2');
+    if (edo2Val === 'yes') {
+      const v = document.getElementById('edo2name').value.trim();
+      if (!v) { showError('edo2name'); valid = false; } else clearError('edo2name');
+    } else {
+      const v = document.getElementById('edo2reason').value.trim();
+      if (!v) { showError('edo2reason'); valid = false; } else clearError('edo2reason');
+    }
+  }
+
+  return valid;
+}
+
+function collectData() {
+  return {
+    timestamp: new Date().toISOString(),
+    branch: document.getElementById('branch').value,
+    carrier: document.getElementById('carrier').value,
+    inn: document.getElementById('inn').value,
+    email: document.getElementById('email').value,
+    contact: document.getElementById('contact').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    edo1: edo1Val === 'yes' ? 'Да' : 'Нет',
+    edo1name: edo1Val === 'yes' ? document.getElementById('edo1name').value.trim() : '',
+    edo1reason: edo1Val === 'no' ? document.getElementById('edo1reason').value.trim() : '',
+    edo2: edo2Val === 'yes' ? 'Да' : 'Нет',
+    edo2name: edo2Val === 'yes' ? document.getElementById('edo2name').value.trim() : '',
+    edo2reason: edo2Val === 'no' ? document.getElementById('edo2reason').value.trim() : '',
+  };
+}
+
+async function submitForm() {
+  if (!validateForm()) {
+    document.querySelector('.error.show, .error-msg.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  const txt = document.getElementById('btnText');
+  const spinner = document.getElementById('btnSpinner');
+  btn.disabled = true;
+  txt.textContent = 'Отправка...';
+  spinner.style.display = 'block';
+
+  const payload = collectData();
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById('successBanner').classList.add('show');
+    document.getElementById('successBanner').scrollIntoView({ behavior: 'smooth' });
+    resetForm();
+  } catch (e) {
+    alert('Ошибка при отправке. Проверьте подключение к интернету или обратитесь к администратору.');
+  } finally {
+    btn.disabled = false;
+    txt.textContent = 'Отправить данные';
+    spinner.style.display = 'none';
+  }
+}
+
+function resetForm() {
+  document.getElementById('branch').value = '';
+  const carrierSel = document.getElementById('carrier');
+  carrierSel.innerHTML = '<option value="">— Сначала выберите филиал —</option>';
+  carrierSel.disabled = true;
+
+  ['inn','email','contact','phone','edo1name','edo1reason','edo2name','edo2reason'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  edo1Val = null; edo2Val = null;
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.conditional-field').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.error-msg').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+}
+</script>
+</body>
+</html>
