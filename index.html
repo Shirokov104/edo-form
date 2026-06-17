@@ -331,6 +331,11 @@
       <label for="edo2name">Наименование провайдера ЭДО для работы с ЭТрН <span class="req">*</span></label>
       <input type="text" id="edo2name" placeholder="Например: Диадок, СБИС, 1С-ЭДО...">
       <div class="error-msg" id="err-edo2name">Укажите наименование провайдера</div>
+      <div class="field-group" style="margin-top:14px;">
+        <label for="etrnId">ID для ЭТрН <span class="req">*</span></label>
+        <input type="text" id="etrnId" placeholder="Введите ID для ЭТрН">
+        <div class="error-msg" id="err-etrnId">Введите ID для ЭТрН</div>
+      </div>
     </div>
 
     <div class="conditional-field" id="edo2-reason-block">
@@ -666,6 +671,7 @@ function selectEdo2(val) {
     nameBlock.classList.remove('show');
     reasonBlock.classList.add('show');
     document.getElementById('edo2name').value = '';
+    document.getElementById('etrnId').value = '';
   }
   clearError('edo2');
 }
@@ -741,6 +747,8 @@ function validateForm() {
     if (edo2Val === 'yes') {
       const v = document.getElementById('edo2name').value.trim();
       if (!v) { showError('edo2name'); valid = false; } else clearError('edo2name');
+      const etrnId = document.getElementById('etrnId').value.trim();
+      if (!etrnId) { showError('etrnId'); valid = false; } else clearError('etrnId');
     } else {
       const v = document.getElementById('edo2reason').value.trim();
       if (!v) { showError('edo2reason'); valid = false; } else clearError('edo2reason');
@@ -766,6 +774,7 @@ function collectData() {
     edo2: edo2Val === 'yes' ? 'Да' : 'Нет',
     edo2name: edo2Val === 'yes' ? document.getElementById('edo2name').value.trim() : '',
     edo2reason: edo2Val === 'no' ? document.getElementById('edo2reason').value.trim() : '',
+    etrnId: edo2Val === 'yes' ? document.getElementById('etrnId').value.trim() : '',
   };
 }
 
@@ -810,7 +819,7 @@ function resetForm() {
   carrierSel.innerHTML = '<option value="">— Сначала выберите филиал —</option>';
   carrierSel.disabled = true;
 
-  ['inn','email','contact','phone','edo1name','edo1reason','edo2name','edo2reason'].forEach(id => {
+  ['inn','email','contact','phone','edo1name','edo1reason','edo2name','edo2reason','etrnId'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -878,3 +887,4 @@ async function exportExcel() {
 </script>
 </body>
 </html>
+
